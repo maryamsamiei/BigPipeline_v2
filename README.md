@@ -3,7 +3,7 @@
 This is the integration of EA-ML, EA-Wavelet, EPIMUTESTR and EA-Pathways (Reactomes and STRING Communities) pipelines. The output of each pipeline is a ranked list of genes based on the FDR values. 
 
 ## Installation
-1. git clone https://github.com/LichtargeLab/BigPipeline.git
+1. git clone https://github.com/LichtargeLab/pyBigPipeline.git
 2. conda env create -f ./BigPipeline/environment.yml
 3. conda install -n pyBigPipeline openjdk
 4. conda activate pyBigPipeline
