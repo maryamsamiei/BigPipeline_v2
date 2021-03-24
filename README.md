@@ -49,7 +49,7 @@ Otherwise, reference file txt file should have the following columns for each va
   * Column 4, "ALT": variant alternative allele 
   * Column 5, "AC": variant allele count in reference population 
   * Column 6, "AF": variant allele frequency in reference population 
-  There should be no header row in the reference_populaton_INFO.txt
+  - There should be no header row in the reference_populaton_INFO.txt
 
 * Weka must be downloaded separately. Click [here](https://waikato.github.io/weka-wiki/downloading_weka/) to install Weka 3.8.0+. 
 Put Weka folder in the BigPipeline directory.
