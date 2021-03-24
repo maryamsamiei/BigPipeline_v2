@@ -32,4 +32,4 @@ Optional arguments:
 
 ## Command line example
 ```bash
-python BigPipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --AC 5 --pipeline ML
+python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --AC 5 --pipeline ML
