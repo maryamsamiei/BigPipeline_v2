@@ -32,7 +32,10 @@ Optional arguments:
 
 ## Command line example
 ```bash
-python Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --AC 5 --pipeline ML
+#set your working directory to BigPipeline
+cd BigPipeline
+#run Big_Pipeline.py
+python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --AC 5 --pipeline ML
 ```
 
 ## Additional Notes
@@ -51,6 +54,5 @@ Column 6, "AF": variant allele frequency in reference population
 *There should be no header row in the reference_populaton_INFO.txt
 
 
-Weka 3.8.0+
 Weka must be downloaded separately. Click [here](https://waikato.github.io/weka-wiki/downloading_weka/) to install Weka 3.8.0+. 
-Put Weka folder in the same working directory.
+Put Weka folder in the BigPipeline directory.
