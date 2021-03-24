@@ -21,7 +21,7 @@ Required arguments:
 Optional arguments:
 | Argument                 | Descripion |
 | ---------------------- |--------------------- |
-| --maxaf  | sets maximum allele frequency threshold (default: 1) |
+| --maxaf  | sets maximum allele frequency threshold (default: 0.01) |
 | --minaf      |sets minimum allele frequency threshold (default: 0)|
 | --transcript           |how to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
 | --ref      | genome reference (options: hg19, hg38 / default: hg38) |
