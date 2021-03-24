@@ -32,4 +32,25 @@ Optional arguments:
 
 ## Command line example
 ```bash
-python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --AC 5 --pipeline ML
+python Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --AC 5 --pipeline ML
+
+
+## Additional Notes
+Reference population variant file format:
+If reference population variants are in VCF format, then user can use the following command to generate the reference population variant file:
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AC\t%INFO/AF\n' reference_population.vcf.gz > reference_populaton_INFO.txt
+
+Otherwise, reference file txt file should have the following columns for each variant:
+Column 1, "CHROM": variant chromosome location 
+Column 2, "POS": variant start location 
+Column 3, "REF": variant reference allele 
+Column 4, "ALT": variant alternative allele 
+Column 5, "AC": variant allele count in reference population 
+Column 6, "AF": variant allele frequency in reference population 
+
+*There should be no header row in the reference_populaton_INFO.txt
+
+
+Weka 3.8.0+
+Weka must be downloaded separately. Click [here](https://waikato.github.io/weka-wiki/downloading_weka/) to install Weka 3.8.0+. 
+Put Weka folder in the same working directory.
