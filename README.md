@@ -15,6 +15,7 @@ Required arguments:
 | ---------------------- |--------------------- |
 | --VCF                | Path to annotated VCF file |
 | --samples            |Path to two-column CSV file with sample IDs in the first column and patient labels (cases=1, controls=0) in the second column. There should be no header row in the csv|
+| --refPop           | Path to text file containing reference population variants used to filter cohort VCF for EA-Pathways analysis (see "Additional Notes" below to see how to build it.|
 | --savepath           | Path for output files |
 | --cores              | number of cpus to use |
 
@@ -26,7 +27,6 @@ Optional arguments:
 | --transcript           |how to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
 | --ref      | genome reference (options: hg19, hg38 / default: hg38) |
 | --AC      | allele count (AC) threshold indicating which alleles from the reference population should be included in EA-Pathways output variant files / default: 5 |
-| --refPop           | Path to text file containing reference population variants used to filter cohort VCF for EA-Pathways analysis (see "Additional Notes" below to see how to build it. (default: UKB_200K_WES.AC.AF.12102020.txt which is related to 200k UKB) |
 | --pipeline           | which pipeline you want to run. (options: All, ML, Pathways, EAML, EPI, Wavelet/ default: All)|
 
 
