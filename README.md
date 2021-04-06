@@ -41,7 +41,7 @@ python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/sam
 ## Additional Notes
 * Reference population variant file format:
 If reference population variants are in VCF format, then user can use the following command to generate the reference population variant file:
-bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AC\t%INFO/AF\n' reference_population.vcf.gz > reference_populaton_INFO.txt
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AC\t%INFO/AF\n' reference_population.vcf.gz > reference_populaton_INFO.txt.
 Otherwise, reference txt file should have the following columns for each variant and no header row:
   * Column 1, "CHROM": variant chromosome location 
   * Column 2, "POS": variant start location 
