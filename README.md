@@ -36,7 +36,7 @@ Optional arguments:
 #set your working directory to BigPipeline
 cd BigPipeline
 #run Big_Pipeline.py
-python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --minAC 3 --maxAC 7 --pipeline ML
+python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --minAC 3 --maxAC 7 --pipeline All
 ```
 
 ## Additional Notes
