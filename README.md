@@ -26,7 +26,8 @@ Optional arguments:
 | --minaf      |sets minimum allele frequency threshold (default: 0)|
 | --transcript           |how to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
 | --ref      | genome reference (options: hg19, hg38 / default: hg38) |
-| --AC      | allele count (AC) threshold indicating which alleles from the reference population should be included in EA-Pathways output variant files / default: 5 |
+| --minAC      | Minimum allele count (AC) cutoff based on the reference population for EA-Pathways analysis / default: 1 |
+| --maxAC      | Maximum allele count (AC) threshold based on the reference population for EA-Pathways analysis / default: 5 |
 | --pipeline           | which pipeline you want to run. (options: All, ML, Pathways, EAML, EPI, Wavelet/ default: All)|
 
 
@@ -35,7 +36,7 @@ Optional arguments:
 #set your working directory to BigPipeline
 cd BigPipeline
 #run Big_Pipeline.py
-python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --AC 5 --pipeline ML
+python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --minAC 3 --maxAC 7 --pipeline ML
 ```
 
 ## Additional Notes
