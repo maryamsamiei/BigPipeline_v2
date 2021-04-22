@@ -11,11 +11,6 @@ import csv
 import time
 import  os
 
-# def getCaseControlIds(patientLabelFile):
-#     patientLabel_df = pd.read_csv(patientLabelFile, header = None)
-#     caseIDs = list(patientLabel_df.loc[patientLabel_df[1] == 1][0])
-#     controlIDs = list(patientLabel_df.loc[patientLabel_df[1] == 0][0])
-#     return caseIDs, controlIDs
 
 def convert_UKB_AF(x):
     try:
@@ -35,8 +30,8 @@ def getRefPopVariants(refPopVariantInfoFile):
     refVariant_df.drop_duplicates('identifier', keep=False, inplace=True)
     return refVariant_df
 
-def getRefVariantsUnderThreshold(refVariant_df,refPopVariantThreshold):
-    refVariantThreshold_df = refVariant_df.loc[(refVariant_df['ref_AC'] <= int(refPopVariantThreshold)) & (refVariant_df['ref_AC'] != 0)]
+def getRefVariantsUnderThreshold(refVariant_df,refPopVariant_lowerThreshold,refPopVariantThreshold):
+    refVariantThreshold_df = refVariant_df.loc[(refVariant_df['ref_AC'] <= int(refPopVariantThreshold)) & (refVariant_df['ref_AC'] != 0) &(refVariant_df['ref_AC'] >= int(refPopVariant_lowerThreshold))]
     refVariantThreshold_dict = dict(zip(refVariantThreshold_df.identifier, refVariantThreshold_df.ref_AC))
     return refVariantThreshold_dict
 
@@ -116,10 +111,11 @@ def selectCanonicalNMIDtranscript(variant_matrix):
     return variant_matrix_final
 
 
-def createACoutputFiles(final_variant_can_df,outputPath, refPopVariantThreshold, cases, controls):
+def createACoutputFiles(final_variant_can_df,outputPath, refPopVariant_lowerThreshold,refPopVariantThreshold, cases, controls):
     os.makedirs(outputPath+'Input_files', exist_ok = True)
     InputPath=outputPath+'Input_files/'
-    for ac in range(int(refPopVariantThreshold) + 1):
+
+    for ac in range(int(refPopVariant_lowerThreshold), int(refPopVariantThreshold) + 1):
         if ac == 0:
             pass
         else:
@@ -138,13 +134,13 @@ def createACoutputFiles(final_variant_can_df,outputPath, refPopVariantThreshold,
                 index=False)
 
 
-def vcf_parser(vcfFile, outputPath, refPopVariantFile, refPopVariantThreshold, cases, controls):
+def vcf_parser(vcfFile, outputPath, refPopVariantFile, refPopVariant_lowerThreshold,refPopVariantThreshold, cases, controls):
     allPatients = cases+controls
     refPopVariant_df = getRefPopVariants(refPopVariantFile)
     print('Number of variants in ref population:', refPopVariant_df.shape[0])
 
-    refPopVariantThreshold_dict = getRefVariantsUnderThreshold(refPopVariant_df, refPopVariantThreshold)
-    print('Number of variants with AC <=',str(refPopVariantThreshold),':',len(refPopVariantThreshold_dict))
+    refPopVariantThreshold_dict = getRefVariantsUnderThreshold(refPopVariant_df, refPopVariant_lowerThreshold,refPopVariantThreshold)
+    print(str(refPopVariant_lowerThreshold),'<=Number of variants with AC <=',str(refPopVariantThreshold),':',len(refPopVariantThreshold_dict))
     vcf = VariantFile(vcfFile)
     start = time.time()
     rows = []
@@ -169,7 +165,7 @@ def vcf_parser(vcfFile, outputPath, refPopVariantFile, refPopVariantThreshold, c
 
     parsedVCFforReactomes_canfinal_df = selectCanonicalNMIDtranscript(parsedVCFforReactomes_final_df)
 
-    createACoutputFiles(parsedVCFforReactomes_canfinal_df, outputPath, refPopVariantThreshold, cases, controls)
+    createACoutputFiles(parsedVCFforReactomes_canfinal_df, outputPath, refPopVariant_lowerThreshold, refPopVariantThreshold, cases, controls)
 
     print('Time to parse and prep Reactome variants:', time.time() - start)
     
