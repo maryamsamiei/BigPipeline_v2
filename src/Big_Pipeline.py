@@ -42,7 +42,8 @@ def parse_args():
     parser.add_argument('--transcript', default='canonical', choices=('all', 'max', 'mean', 'canonical'),help='how to parse EA scores from different transcripts')
     parser.add_argument('--refPop', nargs='?', default='./refs/UKB_200K_WES.AC.AF.12102020.txt',help='text file containing reference population variants')
     parser.add_argument('--Groups', nargs='?', default='./refs/Reactomes2019_less100_NoSpecialChr.csv',help='biological groups of interest')
-    parser.add_argument('--AC',type=int , default=5, help='Max Allele Count Threshold for EA-Pathway Analysis')
+    parser.add_argument('--minAC',type=int , default=1, help='Min Allele Count Threshold for EA-Pathway Analysis')
+    parser.add_argument('--maxAC',type=int , default=5, help='Max Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--cores', type=int, default=1, help='number of CPUs to use for multiprocessing')
     parser.add_argument('--writedata',type=int, default=0, help='keep design matrix after analysis')
     parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Pathways', 'EAML', 'EPI', 'Wavelet'),help='which pipeline to be run')
@@ -69,13 +70,13 @@ def main(args):
         conts = sample_file[sample_file.iloc[:,0]==0].index.tolist()
         os.makedirs(args.savepath+'Pathway_output', exist_ok = True)
         Pathway_output_path =  args.savepath+'Pathway_output/'
-        vcf_parser(args.VCF, Pathway_output_path, args.refPop, args.AC, cases, conts)
+        vcf_parser(args.VCF, Pathway_output_path, args.refPop, args.minAC, args.maxAC, cases, conts)
         print('Prased VCF for EAPathway is completed')
     
         Reactome_input_df = pd.read_csv('./refs/Reactome2020_Greater5Less100_02022021.csv', header=None)
         STRING_input_df = pd.read_csv('./refs/STRINGv11_Greater5Less100_02022021.csv', header=None)    
-        for ac in range(args.AC):
-            ac+=1
+        for ac in range(args.minAC, args.maxAC + 1):
+            # ac+=1
             sample_input_df_Cases = pd.read_csv(args.savepath+'Pathway_output/'+'Input_files/' + 'Cases_PathwaysInput_AC' + str(ac) + '.csv', header=0)
             sample_input_df_Controls = pd.read_csv(args.savepath+'Pathway_output/'+'Input_files/' + 'Controls_PathwaysInput_AC' + str(ac) + '.csv', header=0)
             os.makedirs(Pathway_output_path + 'AC' + str(ac), exist_ok = True)
@@ -96,7 +97,7 @@ def main(args):
         raw_results = gene_results
         full_results,nonzero_results = report_results(raw_results,EAML_output_path)
         print('\n EAML analysis completed')
-        # os.remove(args.savepath+'tmp')
+    
     if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='Wavelet' or args.pipeline=='EPI':   
 #### Generate pEA matrix for EA-Wavelet and EPIMUTESTR Analysis
         sample_file = pd.read_csv(args.samples, index_col=0,header=None)
@@ -134,7 +135,3 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
-
-
-
-
