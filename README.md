@@ -22,14 +22,15 @@ Required arguments:
 Optional arguments:
 | Argument                 | Descripion |
 | ---------------------- |--------------------- |
-| --maxaf  | sets maximum allele frequency threshold (default: 0.01) |
-| --minaf      |sets minimum allele frequency threshold (default: 0)|
-| --transcript           |how to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
-| --ref      | genome reference (options: hg19, hg38 / default: hg38) |
+| --maxaf  | sets maximum allele frequency threshold for ML pipelines (default: 0.01) |
+| --minaf      |sets minimum allele frequency threshold for ML pipelines (default: 0)|
 | --minAC      | Minimum allele count (AC) cutoff based on the reference population for EA-Pathways analysis / default: 1 |
 | --maxAC      | Maximum allele count (AC) threshold based on the reference population for EA-Pathways analysis / default: 5 |
+| --transcript           |how to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
+| --ref      | genome reference (options: hg19, hg38 / default: hg38) |
 | --pipeline           | which pipeline you want to run. (options: All, ML, Pathways, EAML, EPI, Wavelet/ default: All)|
 
+Note: minaf and maxaf set thresholds for ML pipelines (EA-ML, EPIMUTESTR and EA-Wavelet) while minAC and maxAC set thresholds for EA-Pathways pipelines (Reactomes and STRING Communities). 
 
 ## Command line example
 ```bash
