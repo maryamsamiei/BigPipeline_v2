@@ -53,6 +53,6 @@ Otherwise, reference txt file should have the following columns for each variant
   * Column 6, "AF": variant allele frequency in reference population 
 
 * Weka must be downloaded separately. Click [here](https://waikato.github.io/weka-wiki/downloading_weka/) to install Weka 3.8.0+. 
-Put Weka folder in the BigPipeline directory.
+Put Weka folder in the ./BigPipeline/src directory.
 * For a sample size around 7000, 400GB memory is needed. It's highly recommended to run BigPipeline using at least 20 cpus in parallel.
 
