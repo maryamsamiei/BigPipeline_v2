@@ -35,9 +35,9 @@ Note: minaf and maxaf set thresholds for ML pipelines (EA-ML, EPIMUTESTR and EA-
 ## Command line example
 ```bash
 #set your working directory to BigPipeline
-cd BigPipeline
+cd ./BigPipeline/src
 #run Big_Pipeline.py
-python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --minAC 3 --maxAC 7 --pipeline All
+python Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --minAC 3 --maxAC 7 --pipeline All
 ```
 
 ## Additional Notes
