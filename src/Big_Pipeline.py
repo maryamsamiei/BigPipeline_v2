@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan  8 15:06:08 2021
+Created on Thu May 20 15:59:00 2021
 
 @author: maryamsamieinasab
-
-Main script to run BigPipeline
-
 """
 
 import re
@@ -16,7 +13,6 @@ import numpy as np
 import pandas as pd
 from pysam import VariantFile
 import argparse
-# from graphwave_py3 import *
 from utils import *
 from EPIMUTESTR import *
 from Wavelet_Functions import *
@@ -27,7 +23,7 @@ from vcf import *
 import os
 
 
-
+ 
 def parse_args():
     """
     Parses the Big pipeline arguments.
@@ -40,28 +36,34 @@ def parse_args():
     parser.add_argument('--maxaf', type=float, default=0.01, help='maximum allele frequency cutoff')
     parser.add_argument('--minaf', type=float, default=0, help='minimum allele frequency cutoff')
     parser.add_argument('--transcript', default='canonical', choices=('all', 'max', 'mean', 'canonical'),help='how to parse EA scores from different transcripts')
+    parser.add_argument('--Ann', default='VEP', choices=('VEP', 'ANNOVAR'),help='EA annotation method')
     parser.add_argument('--refPop', nargs='?', default='./refs/UKB_200K_WES.AC.AF.12102020.txt',help='text file containing reference population variants')
     parser.add_argument('--Groups', nargs='?', default='./refs/Reactomes2019_less100_NoSpecialChr.csv',help='biological groups of interest')
     parser.add_argument('--minAC',type=int , default=1, help='Min Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--maxAC',type=int , default=5, help='Max Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--cores', type=int, default=1, help='number of CPUs to use for multiprocessing')
-    parser.add_argument('--writedata',type=int, default=0, help='keep design matrix after analysis')
     parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Pathways', 'EAML', 'EPI', 'Wavelet'),help='which pipeline to be run')
 
     return parser.parse_args()
 
 
 def main(args):
-    
-    if args.ref=='hg19':
-        ref = pd.read_csv('./refs/hg19-refGene.protein-coding.txt', delimiter='\t', header=0, index_col='name2')
-    elif args.ref=='hg38':
-        ref = pd.read_csv('./refs/hg38-refGene.protein-coding.txt', delimiter='\t', header=0, index_col='name2')
+    if args.Ann=='ANNOVAR':
+        if args.ref=='hg19':
+            ref = pd.read_csv('./refs/refGene-lite_hg19.May2013.txt', delimiter='\t', header=0, index_col='name2')
+        elif args.ref=='hg38':
+            ref = pd.read_csv('./refs/refGene-lite_hg38.June2017.txt', delimiter='\t', header=0, index_col='name2')
+    elif args.Ann=='VEP':
+        if args.ref=='hg19':
+            ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh37.v75.txt', delimiter='\t', header=0, index_col='gene')
+        elif args.ref=='hg38':
+            ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh38.v94.txt', delimiter='\t', header=0, index_col='gene')
+        ref = ref[~ref.index.duplicated(keep='first')]    
     text_file = open(args.savepath+'arguments.txt', 'w')
-    text_file.write('You are running '+str(args.pipeline)+' pipeline for:'+'\n'+str(args.minaf)+'<Allele Frequency<'+str(args.maxaf)+ '\n'+str(args.transcript)+' transcript'+ '\n'+ 
+    text_file.write('You are running '+str(args.pipeline)+' pipeline for:'+'\n'+str(args.minaf)+'<Allele Frequency<'+str(args.maxaf)+ '\n'+ 
                     'Genome Reference:'+str(args.ref))
     text_file.close()
-    print('You are running', args.pipeline,'pipeline for:\n',args.minaf,'<Allele Frequency<',args.maxaf, '\n', args.transcript,'transcript \n', 'Genome Reference:',args.ref)
+    print('You are running', args.pipeline,'pipeline for:\n',args.minaf,'<Allele Frequency<',args.maxaf, '\n', 'Genome Reference:',args.ref)
     
     if args.pipeline=='All' or args.pipeline=='Pathways':
 ##code for parsing VCF into EA-Pathways input file
@@ -70,7 +72,7 @@ def main(args):
         conts = sample_file[sample_file.iloc[:,0]==0].index.tolist()
         os.makedirs(args.savepath+'Pathway_output', exist_ok = True)
         Pathway_output_path =  args.savepath+'Pathway_output/'
-        vcf_parser(args.VCF, Pathway_output_path, args.refPop, args.minAC, args.maxAC, cases, conts)
+        vcf_parser(args.VCF, Pathway_output_path, args.refPop, args.minAC, args.maxAC, cases, conts, args.Ann)
         print('Prased VCF for EAPathway is completed')
     
         Reactome_input_df = pd.read_csv('./refs/Reactome2020_Greater5Less100_02022021.csv', header=None)
@@ -88,12 +90,12 @@ def main(args):
     
     if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
 ## EA-ML Analysis 
-        print('\ nEAML analysis started')
+        print('\n EAML analysis started')
         os.makedirs(args.savepath+'tmp', exist_ok = True)
         os.makedirs(args.savepath+'EAML_output', exist_ok = True)
         EAML_output_path =  args.savepath+'EAML_output/'
-        gene_results = Parallel(n_jobs=args.cores)(delayed(eval_gene)(gene,reference=args.ref, data_fn=args.VCF, 
-                                                                      targets_fn=args.samples, expdir=args.savepath, write_data=args.writedata, min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript,seed=111,cv=10,weka_path='./weka-3-8-5') for gene in tqdm(ref.index.unique()))
+        gene_results = Parallel(n_jobs=args.cores)(delayed(eval_gene)(gene,reference=args.ref, data_fn=args.VCF,targets_fn=args.samples, expdir=args.savepath,
+                                                                      min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript, EA_Ann=args.Ann, seed=111,cv=10,weka_path='./weka-3-8-5') for gene in tqdm(ref.index.unique()))
         raw_results = gene_results
         full_results,nonzero_results = report_results(raw_results,EAML_output_path)
         print('\n EAML analysis completed')
@@ -104,8 +106,12 @@ def main(args):
         cases = sample_file[sample_file.iloc[:,0]==1].index.astype(str).tolist()
         conts = sample_file[sample_file.iloc[:,0]==0].index.astype(str).tolist()
         samples = cases + conts
-        gene_dfs = Parallel(n_jobs=args.cores)(delayed(parse_gene)(vcf_fn=args.VCF, gene=gene,gene_reference=ref.loc[gene],samples=samples, min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript) for gene in tqdm(ref.index.unique()))
-        design_matrix = pd.concat(gene_dfs, axis=1) 
+        if args.Ann=='ANNOVAR':
+            gene_dfs = Parallel(n_jobs=args.cores)(delayed(parse_ANNOVAR)(vcf_fn=args.VCF, gene=gene,gene_ref=ref.loc[gene],samples=samples, min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript) for gene in tqdm(ref.index.unique()))
+            design_matrix = pd.concat(gene_dfs, axis=1) 
+        elif args.Ann=='VEP':
+            gene_dfs = Parallel(n_jobs=args.cores)(delayed(parse_VEP)(vcf_fn=args.VCF, gene=gene,gene_ref=ref.loc[gene],samples=samples, min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript) for gene in tqdm(ref.index.unique()))
+            design_matrix = pd.concat(gene_dfs, axis=1) 
         design_matrix.to_csv(args.savepath+'input_matrix.csv', header=True, index=True)    
 ## EAWavelet Analysis   
         data, genelist, caselist, contlist, shift, case, cont = init(args.savepath+'input_matrix.csv', args.samples)
@@ -135,3 +141,5 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
+
+

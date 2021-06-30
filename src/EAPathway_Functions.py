@@ -102,18 +102,23 @@ def generate_sample_gene_by_EAmatrix(user_defined_variants, sample_input, summar
     sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == 'stop loss','Action'] = 100
     sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == 'start loss','Action'] = 'synon'
     sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == 'fs-indel', 'Action'] = 100
+    sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == 'splice site', 'Action'] = 100
     sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == 'synonymous SNV','Action'] = 'synon'
+    sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == '3_prime_UTR_variant', 'Action'] = 'synon'
+    sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == '5_prime_UTR_variant', 'Action'] = 'synon'
     sample_input_filtered.loc[sample_input_filtered['Variant_classification'] == 'indel', 'Action'] = 'synon'
     sample_input_filtered['Action'].fillna('no_EA', inplace = True)
     nonsyn_error_genes = list(sample_input_filtered[sample_input_filtered['Action'] == 'no_EA']['gene_ID'])
 
+
+
     EA_100 = [x for x in list(sample_input_filtered['Action']) if x == 100]
     syn_0 = [x for x in list(sample_input_filtered['Action']) if x == 'synon']
-    nonsyn_missing_EA = [x for x in list(sample_input_filtered['Action']) if x == 'no_EA']
+    nonsyn_missing_EA = [x for x in list(sample_input_filtered['Action']) if x == 'no EA score']
     nonsyn_with_EA = [x for x in list(sample_input_filtered['Action']) if type(x) != str and x < 100]
 
     # need to drop from sample_input_filtered df genes with 'no_EA'; these are "errored" genes in AK code
-    nonsyn_missing_EA_filter = sample_input_filtered['Action'] != 'no_EA'
+    nonsyn_missing_EA_filter = sample_input_filtered['Action'] != 'no EA score'
     sample_input_filtered_final = sample_input_filtered.copy()
     sample_input_filtered_final = sample_input_filtered_final[nonsyn_missing_EA_filter]
 
@@ -147,8 +152,9 @@ def generate_sample_gene_by_EAmatrix(user_defined_variants, sample_input, summar
     for item in user_defined_variants:
         text_file.write(item + '\n')
     text_file.write('\n')
-    text_file.write('Number of stopgain SNV, fs-indels, and stop loss SNV annotated with EA = 100: '+ str(len(EA_100)) + '\n')
-    text_file.write('Number of synonymous SNV, indels, and start loss SNV annotated with EA = synon: '+ str(len(syn_0)) + '\n')
+    
+    text_file.write('Number of stopgain SNV, fs-indels, splice site, and stop loss SNV annotated with EA = 100: '+ str(len(EA_100)) + '\n')
+    text_file.write('Number of synonymous SNV, indels, 5/3_UTR, and start loss SNV annotated with EA = synon: '+ str(len(syn_0)) + '\n')
     text_file.write('Number of nonsynonymous SNV w/o EA annotated with EA = no_EA: '+ str(len(nonsyn_missing_EA))+ '\n')
     text_file.write('Number of nonsynonymous SNV with EA scores: '+ str(len(nonsyn_with_EA)) + '\n')
     text_file.write('Shape of input sample matrix (relevant SNVs only): '+ str(sample_input_filtered.shape)+ '\n')
@@ -171,7 +177,7 @@ def KS_test_individual_sample_genes(sample_genes_all_EA_scores, sample_input_gen
     
     # v3: KS test on each mutated gene in cancer type; synon SNVs included in gene x EA matrix
     start = time.time()
-    sample_genes_all_float_EA_scores = [x for x in sample_genes_all_EA_scores if x != 'synon']
+    sample_genes_all_float_EA_scores = [x for x in sample_genes_all_EA_scores if (x != 'synon' and x!= 'no EA score')]
     sample_genes_all_float_EA_scores = [float(x) for x in sample_genes_all_float_EA_scores]
 
     sig_single_gene_df = pd.DataFrame()
@@ -182,7 +188,7 @@ def KS_test_individual_sample_genes(sample_genes_all_EA_scores, sample_input_gen
     for row in range(sample_input_gene_action_matrix.shape[0]):
         gene_ea_scores = sample_input_gene_action_matrix[row, 1:sample_input_gene_action_matrix.shape[1]]
         gene_ea_scores = [x for x in gene_ea_scores if x != None]
-        gene_ea_scores = [x for x in gene_ea_scores if x != 'synon']
+        gene_ea_scores = [x for x in gene_ea_scores if (x != 'synon' and x!= 'no EA score')]
         gene_ea_scores = [float(x) for x in gene_ea_scores]
         if len(gene_ea_scores) == 0:
             sig_single_gene_pvalues.append('No EA scores')
@@ -267,6 +273,8 @@ def PrepSamples4LOO_Analysis(sample_input_genes, all_groups_genes_unique, nonsyn
                     if gene == sample_input_gene_action_matrix[row_inner,0]:
                         gene_ea_scores = sample_input_gene_action_matrix[row_inner, 1:sample_input_gene_action_matrix.shape[1]]
                         gene_ea_scores = [x for x in gene_ea_scores if x != None]
+                        gene_ea_scores = [x for x in gene_ea_scores if x != 'synon']
+                        gene_ea_scores = [float(x) for x in gene_ea_scores]
                         gene_with_EA_lst.extend(gene_ea_scores)
 
                         if len(gene_ea_scores) != 0:
@@ -514,6 +522,8 @@ def generate_simulated_groups(total_simulations, simulation_path_size, gene_EA_m
                     if gene_EA_matrix[row,0] == gene:
                         gene_ea_scores = gene_EA_matrix[row, 1:gene_EA_matrix.shape[1]]
                         gene_ea_scores = [x for x in gene_ea_scores if x != None]
+                        gene_ea_scores = [x for x in gene_ea_scores if x != 'synon']
+                        gene_ea_scores = [float(x) for x in gene_ea_scores]
                         gene_name_with_EA_scores.extend(gene_ea_scores)
                     else:
                         pass
@@ -756,7 +766,7 @@ def core_biological_group_historgrams(group_name, significant_groups_df, sample_
 ###----------------------------------------------------------------------------------------------------------
 
 def EA_Pathway_Wrapper(sample_input_df, groups_input_df, output_directory, method, case_control, number_cores):
-
+    sample_input_df = sample_input_df[sample_input_df.Action != 'no EA score']
     # os.makedirs(output_directory+'Hist', exist_ok = True)
     # histFolder = output_directory+'Hist/'
 ### output file locations
@@ -778,8 +788,8 @@ def EA_Pathway_Wrapper(sample_input_df, groups_input_df, output_directory, metho
     # initiate start time for full analysis
     start_all = time.time()
     # variants considered in analysis
-    relevant_variants = ['nonsynonymous SNV', 'stopgain SNV', 'synonymous SNV','stop loss','start loss','indel','fs-indel']
-
+    relevant_variants = ['nonsynonymous SNV', 'stopgain SNV', 'synonymous SNV','stop loss','start loss','indel','fs-indel',
+                     'splice site','3_prime_UTR_variant','5_prime_UTR_variant']
     # open log file to collect time for each step
     LogFile = open(LogFile_summary_txt_location, 'w')
 
