@@ -23,7 +23,7 @@ from vcf import *
 import os
 
 
-
+ 
 def parse_args():
     """
     Parses the Big pipeline arguments.
