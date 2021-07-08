@@ -39,9 +39,9 @@ def compute_gene_dmatrix(gene,reference, data_fn, targets_fn, min_af, max_af, af
     targets = pd.read_csv(targets_fn, header=None, dtype={0: str, 1: int}).set_index(0).squeeze().sort_index()
     if EA_Ann=='ANNOVAR':
         if reference=='hg19':
-            ref = pd.read_csv('./refs/refGene-lite_hg19.May2013.txt', delimiter='\t', header=0, index_col='name2')
+            ref = pd.read_csv('./refs/refGene-lite_hg19.May2013.txt', delimiter='\t', header=0, index_col='gene')
         elif reference=='hg38':
-            ref = pd.read_csv('./refs/refGene-lite_hg38.June2017.txt', delimiter='\t', header=0, index_col='name2')
+            ref = pd.read_csv('./refs/refGene-lite_hg38.June2017.txt', delimiter='\t', header=0, index_col='gene')
     elif EA_Ann=='VEP':
         if reference=='hg19':
             ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh37.v75.txt', delimiter='\t', header=0, index_col='gene')
