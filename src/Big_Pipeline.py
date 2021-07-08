@@ -50,9 +50,9 @@ def parse_args():
 def main(args):
     if args.Ann=='ANNOVAR':
         if args.ref=='hg19':
-            ref = pd.read_csv('./refs/refGene-lite_hg19.May2013.txt', delimiter='\t', header=0, index_col='name2')
+            ref = pd.read_csv('./refs/refGene-lite_hg19.May2013.txt', delimiter='\t', header=0, index_col='gene')
         elif args.ref=='hg38':
-            ref = pd.read_csv('./refs/refGene-lite_hg38.June2017.txt', delimiter='\t', header=0, index_col='name2')
+            ref = pd.read_csv('./refs/refGene-lite_hg38.June2017.txt', delimiter='\t', header=0, index_col='gene')
     elif args.Ann=='VEP':
         if args.ref=='hg19':
             ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh37.v75.txt', delimiter='\t', header=0, index_col='gene')
