@@ -78,7 +78,7 @@ def convert_zygo(genotype):
     return zygo
 ### functions for VEP annottated vcf
 def fetch_EA_VEP(EA, canon_ensp, all_ensp, csq, EA_parser='canonical'):
-    if 'stop_gained' in csq or 'frameshift_variant' in csq or 'stop_lost' in csq:
+    if 'stop_gained' in csq or 'frameshift_variant' in csq or 'stop_lost' in csq or 'splice_donor_variant' in csq or 'splice_acceptor_variant' in csq:
         return 100
     if EA_parser == 'canonical':
         try:
