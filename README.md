@@ -36,9 +36,9 @@ Note: minaf and maxaf set thresholds for ML pipelines (EA-ML, EPIMUTESTR and EA-
 ## Command line example
 ```bash
 #set your working directory to BigPipeline
-cd ./BigPipeline/src
+cd ./BigPipeline
 #run Big_Pipeline.py
-python Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --minAC 3 --maxAC 7 --pipeline All
+python ./src/Big_Pipeline.py --VCF Path/to/vcf_file.vcf.gz --samples Path/to/samples_file.csv --savepath save/directory/ --cores 20 --maxaf 0.01 --minAC 3 --maxAC 7 --pipeline All
 ```
 
 ## Additional Notes
@@ -54,6 +54,6 @@ Otherwise, reference txt file should have the following columns for each variant
   * Column 6, "AF": variant allele frequency in reference population 
 
 * Weka must be downloaded separately. Click [here](https://waikato.github.io/weka-wiki/downloading_weka/) to install Weka 3.8.0+. 
-Put Weka folder in the ./BigPipeline/src directory.
+Put Weka folder in the BigPipeline directory.
 * For a sample size around 7000, 400GB memory is needed. It's highly recommended to run BigPipeline using at least 20 cpus in parallel.
 
