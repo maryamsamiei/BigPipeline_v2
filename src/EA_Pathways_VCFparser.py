@@ -44,7 +44,6 @@ def selectTranscriptSubEA_VEP(ensp, EA, ensemblProteinid):
         try: #if EA score is None value for that transcript, this returns input EA tuple
             indexVal = ensemblProteinid.index(ensp)
             final_ea = EA[indexVal]
-            final_ea = round(final_ea,2)
         except:
             final_ea = EA
     else:
