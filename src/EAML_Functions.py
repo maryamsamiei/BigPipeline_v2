@@ -42,11 +42,15 @@ def compute_gene_dmatrix(gene,reference, data_fn, targets_fn, min_af, max_af, af
             ref = pd.read_csv('./refs/refGene-lite_hg19.May2013.txt', delimiter='\t', header=0, index_col='gene')
         elif reference=='hg38':
             ref = pd.read_csv('./refs/refGene-lite_hg38.June2017.txt', delimiter='\t', header=0, index_col='gene')
+        elif reference=='ecoli':
+            ref = pd.read_csv('./refs/MG1655.txt', delimiter='\t', header=0, index_col='gene')
     elif EA_Ann=='VEP':
         if reference=='hg19':
             ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh37.v75.txt', delimiter='\t', header=0, index_col='gene')
         elif reference=='hg38':
             ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh38.v94.txt', delimiter='\t', header=0, index_col='gene')
+        elif reference=='ecoli':
+            ref = pd.read_csv('./refs/MG1655.txt', delimiter='\t', header=0, index_col='gene')
         ref = ref[~ref.index.duplicated(keep='first')] 
     gene_reference = ref.loc[gene]
     if EA_Ann=='ANNOVAR':

@@ -30,7 +30,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Big Pipeline arguments")
     parser.add_argument('--VCF', nargs='?', default='./',help='Location of Cohort VCF')
-    parser.add_argument('--ref', nargs='?', default='hg38', choices=('hg19', 'hg38'), help='genome reference file')
+    parser.add_argument('--ref', nargs='?', default='hg38', choices=('hg19', 'hg38', 'ecoli'), help='genome reference file')
     parser.add_argument('--savepath', nargs='?', default='./',help='save path for output')
     parser.add_argument('--samples', nargs='?', default='./samples.txt',help='samples file path')
     parser.add_argument('--maxaf', type=float, default=0.01, help='maximum allele frequency cutoff')
@@ -53,11 +53,15 @@ def main(args):
             ref = pd.read_csv('./refs/refGene-lite_hg19.May2013.txt', delimiter='\t', header=0, index_col='gene')
         elif args.ref=='hg38':
             ref = pd.read_csv('./refs/refGene-lite_hg38.June2017.txt', delimiter='\t', header=0, index_col='gene')
+        elif args.ref=='ecoli':
+            ref = pd.read_csv('./refs/MG1655.txt', delimiter='\t', header=0, index_col='gene')
     elif args.Ann=='VEP':
         if args.ref=='hg19':
             ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh37.v75.txt', delimiter='\t', header=0, index_col='gene')
         elif args.ref=='hg38':
             ref = pd.read_csv('./refs/ENSEMBL-lite_GRCh38.v94.txt', delimiter='\t', header=0, index_col='gene')
+        elif args.ref=='ecoli':
+            ref = pd.read_csv('./refs/MG1655.txt', delimiter='\t', header=0, index_col='gene')
         ref = ref[~ref.index.duplicated(keep='first')]    
     text_file = open(args.savepath+'arguments.txt', 'w')
     text_file.write('You are running '+str(args.pipeline)+' pipeline for:'+'\n'+str(args.minaf)+'<Allele Frequency<'+str(args.maxaf)+ '\n'+ 
@@ -88,20 +92,9 @@ def main(args):
             EA_Pathway_Wrapper(sample_input_df_Cases, STRING_input_df, output_dir, 'STRING','Cases', args.cores)
             EA_Pathway_Wrapper(sample_input_df_Controls, STRING_input_df, output_dir, 'STRING','Controls', args.cores) 
     
-    if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
-## EA-ML Analysis 
-        print('\n EAML analysis started')
-        os.makedirs(args.savepath+'tmp', exist_ok = True)
-        os.makedirs(args.savepath+'EAML_output', exist_ok = True)
-        EAML_output_path =  args.savepath+'EAML_output/'
-        gene_results = Parallel(n_jobs=args.cores)(delayed(eval_gene)(gene,reference=args.ref, data_fn=args.VCF,targets_fn=args.samples, expdir=args.savepath,
-                                                                      min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript, EA_Ann=args.Ann, seed=111,cv=10,weka_path='./weka-3-8-5') for gene in tqdm(ref.index.unique()))
-        raw_results = gene_results
-        full_results,nonzero_results = report_results(raw_results,EAML_output_path)
-        print('\n EAML analysis completed')
     
-    if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='Wavelet' or args.pipeline=='EPI':   
-#### Generate pEA matrix for EA-Wavelet and EPIMUTESTR Analysis
+    if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='Wavelet' or args.pipeline=='EPI' or args.pipeline=='EAML':       
+    #### Generate pEA matrix for EA-Wavelet and EPIMUTESTR Analysis and check mutated genes for EAML
         sample_file = pd.read_csv(args.samples, index_col=0,header=None)
         cases = sample_file[sample_file.iloc[:,0]==1].index.astype(str).tolist()
         conts = sample_file[sample_file.iloc[:,0]==0].index.astype(str).tolist()
@@ -112,15 +105,30 @@ def main(args):
         elif args.Ann=='VEP':
             gene_dfs = Parallel(n_jobs=args.cores)(delayed(parse_VEP)(vcf_fn=args.VCF, gene=gene,gene_ref=ref.loc[gene],samples=samples, min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript) for gene in tqdm(ref.index.unique()))
             design_matrix = pd.concat(gene_dfs, axis=1) 
-        design_matrix.to_csv(args.savepath+'input_matrix.csv', header=True, index=True)    
+            design_matrix.to_csv(args.savepath+'input_matrix.csv', header=True, index=True)
+        mutated_genes = np.array(design_matrix.columns.values.tolist())[design_matrix.sum(axis=0)>0]
+            
+    if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
+## EA-ML Analysis 
+        print('\n EAML analysis started')
+        os.makedirs(args.savepath+'tmp', exist_ok = True)
+        os.makedirs(args.savepath+'EAML_output', exist_ok = True)
+        EAML_output_path =  args.savepath+'EAML_output/'
+        gene_results = Parallel(n_jobs=args.cores)(delayed(eval_gene)(gene,reference=args.ref, data_fn=args.VCF,targets_fn=args.samples, expdir=args.savepath,
+                                                                      min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript, EA_Ann=args.Ann, seed=111,cv=10,weka_path='./weka-3-8-5') for gene in tqdm(mutated_genes))
+        raw_results = gene_results
+        full_results,nonzero_results = report_results(raw_results,EAML_output_path)
+        print('\n EAML analysis completed')
+    
+    if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='Wavelet' or args.pipeline=='EPI':   
 ## EAWavelet Analysis   
         data, genelist, caselist, contlist, shift, case, cont = init(args.savepath+'input_matrix.csv', args.samples)
         if args.pipeline!='EPI':           
             print('\n EA-Wavelet Analysis Started') 
-            case, cont, genelistnet = create_graphs(data, case, cont, caselist, contlist, genelist)
+            case, cont, genelistnet = create_graphs(data, case, cont, caselist, contlist, genelist, reference=args.ref)
             TotChi, shift, case_node_map, cont_node_map = run_wavelet_decomp(case, cont, genelistnet, shift)
             distances = PCA_distance(TotChi, case_node_map, cont_node_map, shift)
-            dffdr = fdrlistgen(data=distances, thr=0.1)
+            dffdr = fdrlistgen(data=distances, thr=1)
             os.makedirs(args.savepath+'EAWavelet_output', exist_ok = True)
             dffdr.to_csv(args.savepath+'EAWavelet_output/'+'wavelet_output.csv', header=True, index=False)
             print('\n EA Wavelet Analysis Complete')

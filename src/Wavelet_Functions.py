@@ -42,10 +42,15 @@ def init(dataframe, samples):
     return data, genelist, caselist, contlist, shift, case, cont
 
 
-def create_graphs(data, case, cont, caselist, contlist, genelist):
+def create_graphs(data, case, cont, caselist, contlist, genelist, reference):
     print('Creating Case and Control Graphs... \n')
     genelistnet = []
-    networkfile = './refs/STRINGv10.csv'
+    if reference=='hg19':
+        networkfile = './refs/STRINGv10.csv'
+    elif reference=='hg38':
+        networkfile = './refs/STRINGv10.csv'
+    elif reference=='ecoli':
+        networkfile = './refs/MG1655_stringdb_v11.5.csv'
     with open(networkfile) as f:
         for line in f:
             node1, node2, _ = line.strip('\n').split(',')
