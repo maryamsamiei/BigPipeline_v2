@@ -28,7 +28,7 @@ Optional arguments:
 | --maxAC      | Maximum allele count (AC) threshold based on the reference population for EA-Pathways analysis / default: 5 |
 | --Ann      | Variant annotation pipeline used (options: ANNOVAR, VEP / default: VEP) |
 | --transcript           |how to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
-| --ref      | genome reference (options: hg19, hg38 / default: hg38) |
+| --ref      | genome reference (options: hg19, hg38, ecoli / default: hg38) |
 | --pipeline           | which pipeline you want to run. (options: All, ML, Pathways, EAML, EPI, Wavelet/ default: All)|
 
 Note: minaf and maxaf set thresholds for ML pipelines (EA-ML, EPIMUTESTR and EA-Wavelet) while minAC and maxAC set thresholds for EA-Pathways pipelines (Reactomes and STRING Communities). 
