@@ -111,13 +111,22 @@ def parse_VEP_eaml(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af
             contig = 'chr'+str(gene_ref.chrom)
         else:
             contig = str(gene_ref.chrom)
-        break    
+        break   
+    def _fetch_anno(anno):
+        # for fields that could return either direct value or tuple depending on header
+        if type(anno) == tuple:
+            return anno[0]
+        else:
+            return anno
     for rec in vcf.fetch(contig=contig, start=gene_ref.start, stop=gene_ref.end):
         all_ea = rec.info.get('EA', (None,))
         all_ensp = rec.info.get('Ensembl_proteinid', (rec.info['ENSP'][0],))
-        ea = fetch_EA_VEP(all_ea, rec.info['ENSP'][0], all_ensp, rec.info['Consequence'][0], EA_parser=EA_parser)
+        canon_ensp = _fetch_anno(rec.info['ENSP'])
+        csq = _fetch_anno(rec.info['Consequence'])
+        rec_gene = _fetch_anno(rec.info['SYMBOL'])
+        ea = fetch_EA_VEP(all_ea, canon_ensp, all_ensp, csq, EA_parser=EA_parser)
         pass_af_check = af_check(rec, af_field=af_field, max_af=max_af, min_af=min_af)
-        if not np.isnan(ea).all() and gene == rec.info['SYMBOL'][0] and pass_af_check:
+        if not np.isnan(ea).all() and gene == rec_gene and pass_af_check:
             gts = pd.Series([convert_zygo(rec.samples[sample]['GT']) for sample in samples], index=samples, dtype=int)
             for i, ft_name in enumerate(feature_names):
                 cutoff = ft_cutoffs[i]
@@ -139,12 +148,21 @@ def parse_VEP(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af_fiel
         else:
             contig = str(gene_ref.chrom)
         break
+    def _fetch_anno(anno):
+        # for fields that could return either direct value or tuple depending on header
+        if type(anno) == tuple:
+            return anno[0]
+        else:
+            return anno
     for rec in vcf.fetch(contig=contig, start=gene_ref.start, stop=gene_ref.end):
         all_ea = rec.info.get('EA', (None,))
         all_ensp = rec.info.get('Ensembl_proteinid', (rec.info['ENSP'][0],))
-        ea = fetch_EA_VEP(all_ea, rec.info['ENSP'][0], all_ensp, rec.info['Consequence'][0], EA_parser=EA_parser)
+        canon_ensp = _fetch_anno(rec.info['ENSP'])
+        csq = _fetch_anno(rec.info['Consequence'])
+        rec_gene = _fetch_anno(rec.info['SYMBOL'])
+        ea = fetch_EA_VEP(all_ea, canon_ensp, all_ensp, csq, EA_parser=EA_parser)
         pass_af_check = af_check(rec, af_field=af_field, max_af=max_af, min_af=min_af)
-        if not np.isnan(ea).all() and gene == rec.info['SYMBOL'][0] and pass_af_check:
+        if not np.isnan(ea).all() and gene == rec_gene and pass_af_check:
             gts = pd.Series([convert_zygo(rec.samples[sample]['GT']) for sample in samples], index=samples, dtype=int)
             cutoff = (1,0)
             if type(ea) == list:
