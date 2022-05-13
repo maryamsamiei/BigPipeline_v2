@@ -95,7 +95,7 @@ def main(args):
         os.makedirs(args.savepath+'EAML_output', exist_ok = True)
         EAML_output_path =  args.savepath+'EAML_output/'
         gene_results = Parallel(n_jobs=args.cores)(delayed(eval_gene)(gene,reference=args.ref, data_fn=args.VCF,targets_fn=args.samples, expdir=args.savepath,
-                                                                      min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript, EA_Ann=args.Ann, seed=111,cv=10,weka_path='./weka-3-8-5') for gene in tqdm(ref.index.unique()))
+                                                                      min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript, EA_Ann=args.Ann, seed=111,cv=10,weka_path='./weka-3-8-5', memory='Xmx2g') for gene in tqdm(ref.index.unique()))
         raw_results = gene_results
         full_results,nonzero_results = report_results(raw_results,EAML_output_path)
         print('\n EAML analysis completed')
