@@ -82,7 +82,7 @@ def eval_gene(gene,reference,data_fn,targets_fn,expdir, min_af, max_af, af_field
     }
     targets = pd.read_csv(targets_fn, header=None, dtype={0: str, 1: int}).set_index(0).squeeze().sort_index()
     gene_dmatrix = compute_gene_dmatrix(gene,reference, data_fn,targets_fn, min_af, max_af, af_field, EA_parser, EA_Ann, expdir)
-    mcc_results = eval_gene1(gene, gene_dmatrix, targets, class_params, 111, 10, Path(expdir), weka_path='./weka-3-8-5/', memory='Xmx2g')
+    mcc_results = eval_gene1(gene, gene_dmatrix, targets, class_params, 111, 10, Path(expdir), weka_path='./weka-3-8-5/', memory=memory)
     (Path(expdir) / f'tmp/{gene}.arff').unlink()  # clear intermediate ARFF file after gene scoring completes
     return gene, mcc_results
 
