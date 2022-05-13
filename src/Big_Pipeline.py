@@ -43,6 +43,7 @@ def parse_args():
     parser.add_argument('--maxAC',type=int , default=5, help='Max Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--cores', type=int, default=1, help='number of CPUs to use for multiprocessing')
     parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Pathways', 'EAML', 'EPI', 'Wavelet'),help='which pipeline to be run')
+    parser.add_argument('--JVMmemory', default='Xmx2g', help='memory argument for each Weka JVM')
 
     return parser.parse_args()
 
@@ -95,7 +96,7 @@ def main(args):
         os.makedirs(args.savepath+'EAML_output', exist_ok = True)
         EAML_output_path =  args.savepath+'EAML_output/'
         gene_results = Parallel(n_jobs=args.cores)(delayed(eval_gene)(gene,reference=args.ref, data_fn=args.VCF,targets_fn=args.samples, expdir=args.savepath,
-                                                                      min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript, EA_Ann=args.Ann, seed=111,cv=10,weka_path='./weka-3-8-5', memory='Xmx2g') for gene in tqdm(ref.index.unique()))
+                                                                      min_af=args.minaf, max_af=args.maxaf, af_field='AF', EA_parser=args.transcript, EA_Ann=args.Ann, seed=111,cv=10,weka_path='./weka-3-8-5', memory=args.JVMmemory) for gene in tqdm(ref.index.unique()))
         raw_results = gene_results
         full_results,nonzero_results = report_results(raw_results,EAML_output_path)
         print('\n EAML analysis completed')
