@@ -121,7 +121,7 @@ def main(args):
             case, cont, genelistnet = create_graphs(data, case, cont, caselist, contlist, genelist)
             TotChi, shift, case_node_map, cont_node_map = run_wavelet_decomp(case, cont, genelistnet, shift)
             distances = PCA_distance(TotChi, case_node_map, cont_node_map, shift)
-            dffdr = fdrlistgen(data=distances, thr=0.1)
+            dffdr = fdrlistgen(data=distances, thr=1)
             os.makedirs(args.savepath+'EAWavelet_output', exist_ok = True)
             dffdr.to_csv(args.savepath+'EAWavelet_output/'+'wavelet_output.csv', header=True, index=False)
             print('\n EA Wavelet Analysis Complete')
