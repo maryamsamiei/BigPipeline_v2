@@ -76,7 +76,7 @@ def main(args):
         vcf_parser(args.VCF, Pathway_output_path, args.refPop, args.minAC, args.maxAC, cases, conts, args.Ann)
         print('Prased VCF for EAPathway is completed')
     
-        Reactome_input_df = pd.read_csv('./refs/Reactome2020_Greater5Less100_02022021.csv', header=None)
+        Reactome_input_df = pd.read_csv('./refs/Reactome2023_Greater5Less100_03032023.csv', header=None)
         STRING_input_df = pd.read_csv('./refs/STRINGv11_Greater5Less100_02022021.csv', header=None)    
         for ac in range(args.minAC, args.maxAC + 1):
             # ac+=1
