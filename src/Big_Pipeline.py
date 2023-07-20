@@ -77,7 +77,8 @@ def main(args):
         print('Prased VCF for EAPathway is completed')
     
         Reactome_input_df = pd.read_csv('./refs/Reactome2023_Greater5Less100_03032023.csv', header=None)
-        STRING_input_df = pd.read_csv('./refs/STRINGv11_Greater5Less100_02022021.csv', header=None)    
+        STRING_input_df = pd.read_csv('./refs/STRINGv11_Greater5Less100_02022021.csv', header=None) 
+        Goterms_input_df = pd.read_csv('./refs/GOterms_Greater5Less100_07202023.csv', header=None) 
         for ac in range(args.minAC, args.maxAC + 1):
             # ac+=1
             sample_input_df_Cases = pd.read_csv(args.savepath+'Pathway_output/'+'Input_files/' + 'Cases_PathwaysInput_AC' + str(ac) + '.csv', header=0)
@@ -87,7 +88,9 @@ def main(args):
             EA_Pathway_Wrapper(sample_input_df_Cases, Reactome_input_df, output_dir, 'Reactome','Cases', args.cores)
             EA_Pathway_Wrapper(sample_input_df_Controls, Reactome_input_df, output_dir, 'Reactome','Controls', args.cores)
             EA_Pathway_Wrapper(sample_input_df_Cases, STRING_input_df, output_dir, 'STRING','Cases', args.cores)
-            EA_Pathway_Wrapper(sample_input_df_Controls, STRING_input_df, output_dir, 'STRING','Controls', args.cores) 
+            EA_Pathway_Wrapper(sample_input_df_Controls, STRING_input_df, output_dir, 'STRING','Controls', args.cores)
+            EA_Pathway_Wrapper(sample_input_df_Cases, Goterms_input_df, output_dir, 'GoTerms','Cases', args.cores)
+            EA_Pathway_Wrapper(sample_input_df_Controls, Goterms_input_df, output_dir, 'GoTerms','Controls', args.cores)
     
     if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
 ## EA-ML Analysis 
