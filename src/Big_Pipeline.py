@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument('--minAC',type=int , default=1, help='Min Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--maxAC',type=int , default=5, help='Max Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--cores', type=int, default=1, help='number of CPUs to use for multiprocessing')
-    parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Pathways', 'EAML', 'EPI', 'Wavelet'),help='which pipeline to be run')
+    parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Reactome', 'STRING','GoTerms', 'EAML', 'EPI', 'Wavelet'),help='which pipeline to be run')
     parser.add_argument('--JVMmemory', default='Xmx2g', help='memory argument for each Weka JVM')
 
     return parser.parse_args()
@@ -66,7 +66,7 @@ def main(args):
     text_file.close()
     print('You are running', args.pipeline,'pipeline for:\n',args.minaf,'<Allele Frequency<',args.maxaf, '\n', 'Genome Reference:',args.ref)
     
-    if args.pipeline=='All' or args.pipeline=='Pathways':
+    if args.pipeline=='All' or args.pipeline=='Reactome' or args.pipeline=='STRING' or args.pipeline=='GoTerms':
 ##code for parsing VCF into EA-Pathways input file
         sample_file = pd.read_csv(args.samples, index_col=0,header=None)
         cases = sample_file[sample_file.iloc[:,0]==1].index.tolist()
@@ -75,22 +75,25 @@ def main(args):
         Pathway_output_path =  args.savepath+'Pathway_output/'
         vcf_parser(args.VCF, Pathway_output_path, args.refPop, args.minAC, args.maxAC, cases, conts, args.Ann)
         print('Prased VCF for EAPathway is completed')
-    
-        Reactome_input_df = pd.read_csv('./refs/Reactome2023_Greater5Less100_03032023.csv', header=None)
-        STRING_input_df = pd.read_csv('./refs/STRINGv11_Greater5Less100_02022021.csv', header=None) 
-        Goterms_input_df = pd.read_csv('./refs/GOterms_Greater5Less100_07202023.csv', header=None) 
+   
         for ac in range(args.minAC, args.maxAC + 1):
             # ac+=1
             sample_input_df_Cases = pd.read_csv(args.savepath+'Pathway_output/'+'Input_files/' + 'Cases_PathwaysInput_AC' + str(ac) + '.csv', header=0)
             sample_input_df_Controls = pd.read_csv(args.savepath+'Pathway_output/'+'Input_files/' + 'Controls_PathwaysInput_AC' + str(ac) + '.csv', header=0)
             os.makedirs(Pathway_output_path + 'AC' + str(ac), exist_ok = True)
             output_dir = Pathway_output_path + 'AC' + str(ac)+'/'
-            EA_Pathway_Wrapper(sample_input_df_Cases, Reactome_input_df, output_dir, 'Reactome','Cases', args.cores)
-            EA_Pathway_Wrapper(sample_input_df_Controls, Reactome_input_df, output_dir, 'Reactome','Controls', args.cores)
-            EA_Pathway_Wrapper(sample_input_df_Cases, STRING_input_df, output_dir, 'STRING','Cases', args.cores)
-            EA_Pathway_Wrapper(sample_input_df_Controls, STRING_input_df, output_dir, 'STRING','Controls', args.cores)
-            EA_Pathway_Wrapper(sample_input_df_Cases, Goterms_input_df, output_dir, 'GoTerms','Cases', args.cores)
-            EA_Pathway_Wrapper(sample_input_df_Controls, Goterms_input_df, output_dir, 'GoTerms','Controls', args.cores)
+            if args.pipeline=='Reactome' or args.pipeline=='All':
+                Reactome_input_df = pd.read_csv('./refs/Reactome2023_Greater5Less100_03032023.csv', header=None)
+                EA_Pathway_Wrapper(sample_input_df_Cases, Reactome_input_df, output_dir, 'Reactome','Cases', args.cores)
+                EA_Pathway_Wrapper(sample_input_df_Controls, Reactome_input_df, output_dir, 'Reactome','Controls', args.cores)
+            if args.pipeline=='STRING' or args.pipeline=='All':
+                STRING_input_df = pd.read_csv('./refs/STRINGv11_Greater5Less100_02022021.csv', header=None) 
+                EA_Pathway_Wrapper(sample_input_df_Cases, STRING_input_df, output_dir, 'STRING','Cases', args.cores)
+                EA_Pathway_Wrapper(sample_input_df_Controls, STRING_input_df, output_dir, 'STRING','Controls', args.cores)
+            if args.pipeline=='GoTerms' or args.pipeline=='All':
+                Goterms_input_df = pd.read_csv('./refs/GOterms_Greater5Less100_07202023.csv', header=None) 
+                EA_Pathway_Wrapper(sample_input_df_Cases, Goterms_input_df, output_dir, 'GoTerms','Cases', args.cores)
+                EA_Pathway_Wrapper(sample_input_df_Controls, Goterms_input_df, output_dir, 'GoTerms','Controls', args.cores)
     
     if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
 ## EA-ML Analysis 
