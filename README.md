@@ -27,10 +27,11 @@ Optional arguments:
 | --minAC      | Minimum allele count (AC) cutoff based on the reference population for EA-Pathways analysis / default: 1 |
 | --maxAC      | Maximum allele count (AC) threshold based on the reference population for EA-Pathways analysis / default: 5 |
 | --Ann      | Variant annotation pipeline used (options: ANNOVAR, VEP / default: VEP) |
-| --transcript           |how to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
-| --ref      | genome reference (options: hg19, hg38 / default: hg38) |
-| --pipeline           | which pipeline you want to run. (options: All, ML, Reactome, STRING, GoTerms, EAML, EPI, Wavelet/ default: All)|
-| --JVMmemory  |memory needed for each Weka JVM. (use Xmx3g if you got "BlockingIOError: Resource temporarily unavailable" / default: Xmx2g)|
+| --transcript           |How to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
+| --ref      | Genome reference (options: hg19, hg38 / default: hg38) |
+| --pipeline           | Which pipeline you want to run. (options: All, ML, Reactome, STRING, GoTerms, EAML, EPI, Wavelet/ default: All)|
+| --chrX       | Whether to include (1) or exclude (0) sex chromosomes in analysis (options: 1, 0 / default: 1 )|
+| --JVMmemory  | Memory needed for each Weka JVM. (use Xmx3g if you got "BlockingIOError: Resource temporarily unavailable" / default: Xmx2g)|
 
 Note: minaf and maxaf set thresholds for ML pipelines (EA-ML, EPIMUTESTR and EA-Wavelet) while minAC and maxAC set thresholds for EA-Pathways pipelines (Reactomes and STRING Communities). 
 
