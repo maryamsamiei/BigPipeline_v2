@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument('--minAC',type=int , default=1, help='Min Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--maxAC',type=int , default=5, help='Max Allele Count Threshold for EA-Pathway Analysis')
     parser.add_argument('--cores', type=int, default=1, help='number of CPUs to use for multiprocessing')
-    parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Reactome', 'STRING','GoTerms', 'EAML', 'EPI', 'Wavelet'),help='which pipeline to be run')
+    parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Reactome', 'STRING','GoTerms', 'EAML', 'EPI', 'Wavelet', 'sigma'),help='which pipeline to be run')
     parser.add_argument('--JVMmemory', default='Xmx2g', help='memory argument for each Weka JVM')
     parser.add_argument('--chrX', type=int,default=1, help='1 if there is sex chromosome in the VCF, 0 if there is no sex chromosome in the VCF')
     parser.add_argument('--GeneLength', nargs='?', default='./refs/gene_length.csv',help='gene length file path')
