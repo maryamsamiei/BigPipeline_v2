@@ -99,7 +99,7 @@ def fetch_EA_VEP(EA, canon_ensp, all_ensp, csq, EA_parser='canonical'):
             return np.nanmax(newEA)
         else:
             return newEA
-
+### pEA matrix with 6 features for EAML pipeline
 def parse_VEP_eaml(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af_field='AF', EA_parser='canonical'):
     feature_names = ('D0', 'D30', 'D70', 'R0', 'R30', 'R70')
     ft_cutoffs = list(product((1, 2), (0, 30, 70)))
@@ -137,7 +137,7 @@ def parse_VEP_eaml(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af
                 else:
                     pEA(dmatrix, ea, gts, cutoff, ft_name)
     return 1 - dmatrix
-
+### pEA matrix for wavelet and EPIMUTESTR pipelines
 def parse_VEP(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af_field='AF', EA_parser='canonical'):
     vcf = VariantFile(vcf_fn)
     vcf.subset_samples(samples)
@@ -172,6 +172,37 @@ def parse_VEP(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af_fiel
             else:
                 pEA(dmatrix, ea, gts, cutoff, gene)
     return 1 - dmatrix
+### sumEA matrix for sigma diff pipeline
+def parse_VEP_Sigma(vcf_fn, gene, gene_ref, samples, max_af, min_af):
+   
+    vcf = VariantFile(vcf_fn)
+    vcf.subset_samples(samples)
+    dmatrix = pd.DataFrame(np.zeros((len(samples), 1)), index=samples, columns=[gene])
+    for var in vcf:
+        if re.search(r'chr', var.chrom):
+            contig = 'chr'+str(gene_ref.chrom)
+        else:
+            contig = str(gene_ref.chrom)
+        break
+    def _fetch_anno(anno):
+        # for fields that could return either direct value or tuple depending on header
+        if type(anno) == tuple:
+            return anno[0]
+        else:
+            return anno
+    for rec in vcf.fetch(contig=contig, start=gene_ref.start, stop=gene_ref.end):
+        all_ea = rec.info.get('EA', (None,))
+        all_ensp = rec.info.get('Ensembl_proteinid', (rec.info['ENSP'][0],))
+        canon_ensp = _fetch_anno(rec.info['ENSP'])
+        csq = _fetch_anno(rec.info['Consequence'])
+        rec_gene = _fetch_anno(rec.info['SYMBOL'])
+        ea = fetch_EA_VEP(all_ea, canon_ensp, all_ensp, csq)
+        pass_af_check = af_check(rec, max_af, min_af)
+        if not np.isnan(ea).all() and gene == rec_gene and pass_af_check:
+            gts = pd.Series([convert_zygo(rec.samples[sample]['GT']) for sample in samples], index=samples, dtype=int)
+            dmatrix[gene] += ea*gts  
+    return dmatrix  
+
 
 ### functions for ANNOVAR annotated vcf
 def parse_ANNOVAR_eaml(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af_field='AF', EA_parser='canonical'):
@@ -253,6 +284,33 @@ def parse_ANNOVAR(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af_
             else:
                 pEA(dmatrix, ea, gts, cutoff, gene)
     return 1 - dmatrix
+def parse_ANNOVAR_Sigma(vcf_fn, gene, gene_ref, samples, min_af=None, max_af=None, af_field='AF', EA_parser='canonical'):
+    """
+    Parse EA scores and compute pEA design matrix for a given gene with custom ANNOVAR annotations
+    Args:
+        vcf_fn (Path-like): Filepath to VCF
+        gene (str): HGSC gene symbol
+        gene_ref (Series): Reference information for given gene's transcripts
+        samples (list): sample IDs
+        min_af (float): Minimum allele frequency for variants
+        max_af (float): Maximum allele frequency for variants
+        af_field (str): Name of INFO field containing allele frequency information
+        EA_parser (str): How to parse EA scores from multiple transcripts
+    Returns:
+        DataFrame: sumEA design matrix
+    """
+
+    vcf = VariantFile(vcf_fn)
+    vcf.subset_samples(samples)
+    dmatrix = pd.DataFrame(np.ones((len(samples), 1)), index=samples, columns=[gene])
+    for rec in fetch_variants(vcf, contig=str(gene_ref.chrom), start=gene_ref.start, stop=gene_ref.end):
+        ea = fetch_EA_ANNOVAR(rec.info['EA'], rec.info['NM'], gene_ref.canonical, EA_parser=EA_parser)
+        pass_af_check = af_check(rec, af_field=af_field, max_af=max_af, min_af=min_af)
+        if not np.isnan(ea).all() and gene == rec.info['gene'] and pass_af_check:
+            gts = pd.Series([convert_zygo(rec.samples[sample]['GT']) for sample in samples], index=samples, dtype=int)
+            dmatrix[gene] += ea*gts  
+           
+    return dmatrix
 # util functions
 def fetch_variants(vcf, contig=None, start=None, stop=None):
     """
