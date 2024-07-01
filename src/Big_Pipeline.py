@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument('--pipeline', default='All', choices=('All', 'ML', 'Reactome', 'STRING','GoTerms', 'EAML', 'EPI', 'Wavelet'),help='which pipeline to be run')
     parser.add_argument('--JVMmemory', default='Xmx2g', help='memory argument for each Weka JVM')
     parser.add_argument('--chrX', type=int,default=1, help='1 if there is sex chromosome in the VCF, 0 if there is no sex chromosome in the VCF')
-
+    parser.add_argument('--GeneLength', nargs='?', default='./refs/gene_length.csv',help='gene length file path')
     return parser.parse_args()
 
 
@@ -98,8 +98,32 @@ def main(args):
                 Goterms_input_df = pd.read_csv('./refs/GOterms_Greater5Less100_07202023.csv', header=None) 
                 EA_Pathway_Wrapper(sample_input_df_Cases, Goterms_input_df, output_dir, 'GoTerms','Cases', args.cores)
                 EA_Pathway_Wrapper(sample_input_df_Controls, Goterms_input_df, output_dir, 'GoTerms','Controls', args.cores)
+ ## Sigma Diff Analysis    
+     if args.pipeline=='All' or args.pipeline=='Sigma':   
+            samples = pd.read_csv(args.samples, index_col=0,header=None)
+            cases = samples[samples.iloc[:,0]==1].index.astype(str).tolist()
+            conts = samples[samples.iloc[:,0]==0].index.astype(str).tolist()
+            total_samples = samples.index.astype(str).tolist()
+            print('\n Sigma Diff analysis started')
+            os.makedirs(args.savepath+'Sigma_output', exist_ok = True)
+            Sigma_output_path =  args.savepath+'Sigma_output/' 
+      #### Generate sumEA matrix for Sigma Diff Analysis
+            if args.Ann=='ANNOVAR':
+                matrix = Parallel(n_jobs=args.cores)(delayed(parse_ANNOVAR_Sigma)(args.VCF, gene, ref.loc[gene], total_samples, min_af=0, max_af=args.maxaf,af_field='AF',EA_parser='canonical') for gene in tqdm(ref.index.unique()))
+            if args.Ann=='VEP':
+                matrix = Parallel(n_jobs=args.cores)(delayed(parse_VEP_Sigma)(args.VCF, gene, ref.loc[gene], total_samples, max_af=args.maxaf, min_af=0) for gene in tqdm(ref.index.unique()))
+            design_matrix = pd.concat(matrix, axis=1)
+            ## reading gene length file
+            gene_length = pd.read_csv(args.GeneLength, index_col=0)
+            genes = set(design_matrix.columns.tolist()).intersection(set(gene_length.index.tolist()))
+            gene_length = gene_length.loc[genes]
+        
+            sigma_matrix, distance_matrix  = sigma(design_matrix, gene_length, genes,samples)
+            distance_matrix.to_csv(Sigma_output_path+'distance_matrix.tsv', sep='\t', header=True, index=True) 
+            sigma_matrix.to_csv(args.Sigma_output_path+'sigma.tsv', sep='\t', header=True, index=True) 
+            print('\n Sigma Diff analysis completed')    
     
-    if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
+if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
 ## EA-ML Analysis 
         print('\n EAML analysis started')
         os.makedirs(args.savepath+'tmp', exist_ok = True)
