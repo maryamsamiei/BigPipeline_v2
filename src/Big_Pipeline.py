@@ -98,8 +98,8 @@ def main(args):
                 Goterms_input_df = pd.read_csv('./refs/GOterms_Greater5Less100_07202023.csv', header=None) 
                 EA_Pathway_Wrapper(sample_input_df_Cases, Goterms_input_df, output_dir, 'GoTerms','Cases', args.cores)
                 EA_Pathway_Wrapper(sample_input_df_Controls, Goterms_input_df, output_dir, 'GoTerms','Controls', args.cores)
- ## Sigma Diff Analysis    
-    if args.pipeline=='All' or args.pipeline=='Sigma':   
+## Sigma Diff Analysis    
+    if args.pipeline=='All' or args.pipeline=='sigma':   
         samples = pd.read_csv(args.samples, index_col=0,header=None)
         cases = samples[samples.iloc[:,0]==1].index.astype(str).tolist()
         conts = samples[samples.iloc[:,0]==0].index.astype(str).tolist()
