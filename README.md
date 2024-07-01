@@ -29,9 +29,10 @@ Optional arguments:
 | --Ann      | Variant annotation pipeline used (options: ANNOVAR, VEP / default: VEP) |
 | --transcript           |How to parse EA scores from different transcripts (options: canonical, max, mean, all / default: canonical)|
 | --ref      | Genome reference (options: hg19, hg38 / default: hg38) |
-| --pipeline           | Which pipeline you want to run. (options: All, ML, Reactome, STRING, GoTerms, EAML, EPI, Wavelet/ default: All)|
+| --pipeline           | Which pipeline you want to run. (options: All, ML, Reactome, STRING, GoTerms, sigma, EAML, EPI, Wavelet/ default: All)|
 | --chrX       | Whether to include (1) or exclude (0) sex chromosomes in analysis (options: 1, 0 / default: 1 )|
 | --JVMmemory  | Memory needed for each Weka JVM. (use Xmx3g if you got "BlockingIOError: Resource temporarily unavailable" / default: Xmx2g)|
+| --GeneLength  | gene length file path/default is './refs/gene_length.csv'|
 
 Note: minaf and maxaf set thresholds for ML pipelines (EA-ML, EPIMUTESTR and EA-Wavelet) while minAC and maxAC set thresholds for EA-Pathways pipelines (Reactomes and STRING Communities). 
 
