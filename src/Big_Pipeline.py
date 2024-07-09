@@ -109,9 +109,9 @@ def main(args):
         Sigma_output_path =  args.savepath+'Sigma_output/' 
       #### Generate sumEA matrix for Sigma Diff Analysis
         if args.Ann=='ANNOVAR':
-            matrix = Parallel(n_jobs=args.cores)(delayed(parse_ANNOVAR_Sigma)(args.VCF, gene, ref.loc[gene], total_samples, min_af=0, max_af=args.maxaf,af_field='AF',EA_parser='canonical') for gene in tqdm(ref.index.unique()))
+            matrix = Parallel(n_jobs=args.cores)(delayed(parse_ANNOVAR_Sigma)(args.VCF, gene, ref.loc[gene], total_samples, min_af=args.minaf, max_af=args.maxaf,af_field='AF',EA_parser='canonical') for gene in tqdm(ref.index.unique()))
         if args.Ann=='VEP':
-            matrix = Parallel(n_jobs=args.cores)(delayed(parse_VEP_Sigma)(args.VCF, gene, ref.loc[gene], total_samples, max_af=args.maxaf, min_af=0) for gene in tqdm(ref.index.unique()))
+            matrix = Parallel(n_jobs=args.cores)(delayed(parse_VEP_Sigma)(args.VCF, gene, ref.loc[gene], total_samples, max_af=args.maxaf, min_af=args.minaf,af_field='AF') for gene in tqdm(ref.index.unique()))
         design_matrix = pd.concat(matrix, axis=1)
         ## reading gene length file
         gene_length = pd.read_csv(args.GeneLength, index_col=0)
