@@ -121,7 +121,7 @@ def main(args):
         
         sigma_matrix, distance_matrix  = sigma(design_matrix, gene_length, genes,samples)
         distance_matrix.to_csv(Sigma_output_path+'distance_matrix.tsv', sep='\t', header=True, index=True) 
-        sigma_matrix.to_csv(args.Sigma_output_path+'sigma.tsv', sep='\t', header=True, index=True) 
+        sigma_matrix.to_csv(Sigma_output_path+'sigma.tsv', sep='\t', header=True, index=True) 
         print('\n Sigma Diff analysis completed')    
     
     if args.pipeline=='All' or args.pipeline=='ML' or args.pipeline=='EAML':
