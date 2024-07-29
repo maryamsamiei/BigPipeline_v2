@@ -64,8 +64,9 @@ def sigma(design_matrix, gene_length, genes,samples):
     mean = np.mean(distance_matrix1, axis=1)
     std = np.std(distance_matrix1, axis=1)
     distance_matrix['zscore'] = (distance_matrix['distance']-mean)/std 
-    distance_matrix['pvalue'] = stats.norm.sf(abs(distance_matrix.zscore)) * 2
-    distance_matrix['qvalue'] = multipletests(distance_matrix.pvalue, method='fdr_bh')[1]
+    distance_matrix2 = distance_matrix.dropna(subset=['zscore'])
+    distance_matrix2['pvalue'] = stats.norm.sf(abs(distance_matrix2.zscore)) * 2
+    distance_matrix2['qvalue'] = multipletests(distance_matrix2.pvalue, method='fdr_bh')[1]
     
-    return sigma_matrix, distance_matrix       
+    return sigma_matrix, distance_matrix2       
 
