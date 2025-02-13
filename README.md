@@ -1,6 +1,6 @@
 # BigPipeline
 
-This is the integration of Sigma Diff, EA-ML, EA-Wavelet, EPIMUTESTR and EA-Pathways (Reactomes and STRING Communities) pipelines. The output of each pipeline is a ranked list of genes based on the FDR values. 
+This is the integration of Sigma Diff, EA-ML, EA-Wavelet, EPIMUTESTR, EA-Pathways (Reactomes and STRING Communities) and Sigma Diff pipelines. The output of each pipeline is a ranked list of genes based on the FDR values. 
 
 ## Installation
 1. git clone https://github.com/LichtargeLab/BigPipeline.git
